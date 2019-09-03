@@ -928,6 +928,24 @@ extension Connection {
         }
     }
     
+    public func newPrepare(_ query: QueryType) throws -> [Row]? {
+        let expression = query.expression
+        let statement = try prepare(expression.template, expression.bindings)
+        
+        let columnNames = try columnNamesForQuery(query)
+        var rows: [Row]?
+        var nextRow: Row?
+        repeat {
+            nextRow = try statement.failableNext().map { Row(columnNames, $0) }
+            if let nextRow = nextRow {
+                if rows == nil { rows = [Row]() }
+                rows?.append(nextRow)
+            }
+            
+        } while nextRow != nil;
+        
+        return rows
+    }
 
     public func prepareRowIterator(_ query: QueryType) throws -> RowIterator {
         let expression = query.expression
