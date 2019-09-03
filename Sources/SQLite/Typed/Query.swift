@@ -916,19 +916,8 @@ public struct RowIterator: FailableIterator {
 }
 
 extension Connection {
-
-    public func prepare(_ query: QueryType) throws -> AnySequence<Row> {
-        let expression = query.expression
-        let statement = try prepare(expression.template, expression.bindings)
-
-        let columnNames = try columnNamesForQuery(query)
-
-        return AnySequence {
-            AnyIterator { statement.next().map { Row(columnNames, $0) } }
-        }
-    }
     
-    public func newPrepare(_ query: QueryType) throws -> [Row]? {
+    public func prepare(_ query: QueryType) throws -> [Row]? {
         let expression = query.expression
         let statement = try prepare(expression.template, expression.bindings)
         
@@ -942,7 +931,7 @@ extension Connection {
                 rows?.append(nextRow)
             }
             
-        } while nextRow != nil;
+        } while nextRow != nil
         
         return rows
     }
